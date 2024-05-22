@@ -1,0 +1,491 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		5507D6202BECE48D00DCBC62 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5507D61F2BECE48D00DCBC62 /* LaunchScreen.storyboard */; };
+		5507D6232BED10B800DCBC62 /* CircularAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5507D6222BED10B800DCBC62 /* CircularAnimator.swift */; };
+		555D61782BF662F000107551 /* UIColorModified.swift in Sources */ = {isa = PBXBuildFile; fileRef = 555D61772BF662F000107551 /* UIColorModified.swift */; };
+		558E00B02BF2330D002509CE /* Conversation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 558E00AF2BF2330D002509CE /* Conversation.swift */; };
+		558E00B22BF2335A002509CE /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 558E00B12BF2335A002509CE /* Message.swift */; };
+		558E00B42BF25597002509CE /* MessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 558E00B32BF25597002509CE /* MessageCell.swift */; };
+		559CD57D2BF79A8300582E1F /* ControllKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 559CD57C2BF79A8300582E1F /* ControllKeyboard.swift */; };
+		55B11E192BF4D8650048DB35 /* GoogleGenerativeAI in Frameworks */ = {isa = PBXBuildFile; productRef = 55B11E182BF4D8650048DB35 /* GoogleGenerativeAI */; };
+		55B11E1C2BF4D9EB0048DB35 /* menu.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 55B11E1A2BF4D9EA0048DB35 /* menu.pdf */; };
+		55C292912BF2099E00D8F7CC /* SideBarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55C292902BF2099E00D8F7CC /* SideBarViewController.swift */; };
+		55D69FC02BF504ED00245FB4 /* SpeechManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55D69FBF2BF504EC00245FB4 /* SpeechManager.swift */; };
+		55DEBBD32BEBCC1D001A497F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55DEBBD22BEBCC1D001A497F /* AppDelegate.swift */; };
+		55DEBBD52BEBCC1D001A497F /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55DEBBD42BEBCC1D001A497F /* SceneDelegate.swift */; };
+		55DEBBD72BEBCC1D001A497F /* RootViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55DEBBD62BEBCC1D001A497F /* RootViewController.swift */; };
+		55DEBBDD2BEBCC1D001A497F /* VoiceOrderingAssistant.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 55DEBBDB2BEBCC1D001A497F /* VoiceOrderingAssistant.xcdatamodeld */; };
+		55DEBBDF2BEBCC20001A497F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 55DEBBDE2BEBCC20001A497F /* Assets.xcassets */; };
+		55DEBBEA2BEBD0CD001A497F /* ChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55DEBBE92BEBD0CC001A497F /* ChatViewController.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		5507D61F2BECE48D00DCBC62 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
+		5507D6222BED10B800DCBC62 /* CircularAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CircularAnimator.swift; path = VoiceOrderingAssistant/CircularAnimator.swift; sourceTree = SOURCE_ROOT; };
+		555D61772BF662F000107551 /* UIColorModified.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIColorModified.swift; sourceTree = SOURCE_ROOT; };
+		558E00AF2BF2330D002509CE /* Conversation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Conversation.swift; sourceTree = SOURCE_ROOT; };
+		558E00B12BF2335A002509CE /* Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = SOURCE_ROOT; };
+		558E00B32BF25597002509CE /* MessageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageCell.swift; sourceTree = SOURCE_ROOT; };
+		559CD57C2BF79A8300582E1F /* ControllKeyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControllKeyboard.swift; sourceTree = SOURCE_ROOT; };
+		55B11E1A2BF4D9EA0048DB35 /* menu.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = menu.pdf; sourceTree = "<group>"; };
+		55C292902BF2099E00D8F7CC /* SideBarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideBarViewController.swift; sourceTree = "<group>"; };
+		55D69FBF2BF504EC00245FB4 /* SpeechManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechManager.swift; sourceTree = SOURCE_ROOT; };
+		55DEBBCF2BEBCC1D001A497F /* VoiceOrderingAssistant.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VoiceOrderingAssistant.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		55DEBBD22BEBCC1D001A497F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		55DEBBD42BEBCC1D001A497F /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		55DEBBD62BEBCC1D001A497F /* RootViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootViewController.swift; sourceTree = "<group>"; };
+		55DEBBDC2BEBCC1D001A497F /* VoiceOrderingAssistant.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = VoiceOrderingAssistant.xcdatamodel; sourceTree = "<group>"; };
+		55DEBBDE2BEBCC20001A497F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		55DEBBE32BEBCC20001A497F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		55DEBBE92BEBD0CC001A497F /* ChatViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewController.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		55DEBBCC2BEBCC1D001A497F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				55B11E192BF4D8650048DB35 /* GoogleGenerativeAI in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		5507D6212BED0F7500DCBC62 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				5507D6222BED10B800DCBC62 /* CircularAnimator.swift */,
+				55D69FBF2BF504EC00245FB4 /* SpeechManager.swift */,
+				555D61772BF662F000107551 /* UIColorModified.swift */,
+				559CD57C2BF79A8300582E1F /* ControllKeyboard.swift */,
+			);
+			name = Helpers;
+			sourceTree = "<group>";
+		};
+		558E00AE2BF232D8002509CE /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				558E00AF2BF2330D002509CE /* Conversation.swift */,
+				558E00B12BF2335A002509CE /* Message.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		55B11E1B2BF4D9EA0048DB35 /* Menu PDF */ = {
+			isa = PBXGroup;
+			children = (
+				55B11E1A2BF4D9EA0048DB35 /* menu.pdf */,
+			);
+			path = "Menu PDF";
+			sourceTree = "<group>";
+		};
+		55DEBBC62BEBCC1D001A497F = {
+			isa = PBXGroup;
+			children = (
+				55DEBBD12BEBCC1D001A497F /* VoiceOrderingAssistant */,
+				55DEBBD02BEBCC1D001A497F /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		55DEBBD02BEBCC1D001A497F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				55DEBBCF2BEBCC1D001A497F /* VoiceOrderingAssistant.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		55DEBBD12BEBCC1D001A497F /* VoiceOrderingAssistant */ = {
+			isa = PBXGroup;
+			children = (
+				55B11E1B2BF4D9EA0048DB35 /* Menu PDF */,
+				558E00AE2BF232D8002509CE /* Models */,
+				5507D6212BED0F7500DCBC62 /* Helpers */,
+				55DEBBEB2BEBD0E4001A497F /* Delegates */,
+				55DEBBEC2BEBD0F3001A497F /* Controllers */,
+				55DEBBED2BEBD102001A497F /* Views */,
+				55DEBBEE2BEBD117001A497F /* Assets */,
+				55DEBBE32BEBCC20001A497F /* Info.plist */,
+				55DEBBDB2BEBCC1D001A497F /* VoiceOrderingAssistant.xcdatamodeld */,
+			);
+			path = VoiceOrderingAssistant;
+			sourceTree = "<group>";
+		};
+		55DEBBEB2BEBD0E4001A497F /* Delegates */ = {
+			isa = PBXGroup;
+			children = (
+				55DEBBD22BEBCC1D001A497F /* AppDelegate.swift */,
+				55DEBBD42BEBCC1D001A497F /* SceneDelegate.swift */,
+			);
+			path = Delegates;
+			sourceTree = "<group>";
+		};
+		55DEBBEC2BEBD0F3001A497F /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				55DEBBD62BEBCC1D001A497F /* RootViewController.swift */,
+				55DEBBE92BEBD0CC001A497F /* ChatViewController.swift */,
+				55C292902BF2099E00D8F7CC /* SideBarViewController.swift */,
+			);
+			path = Controllers;
+			sourceTree = "<group>";
+		};
+		55DEBBED2BEBD102001A497F /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				5507D61F2BECE48D00DCBC62 /* LaunchScreen.storyboard */,
+				558E00B32BF25597002509CE /* MessageCell.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		55DEBBEE2BEBD117001A497F /* Assets */ = {
+			isa = PBXGroup;
+			children = (
+				55DEBBDE2BEBCC20001A497F /* Assets.xcassets */,
+			);
+			path = Assets;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		55DEBBCE2BEBCC1D001A497F /* VoiceOrderingAssistant */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 55DEBBE62BEBCC21001A497F /* Build configuration list for PBXNativeTarget "VoiceOrderingAssistant" */;
+			buildPhases = (
+				55DEBBCB2BEBCC1D001A497F /* Sources */,
+				55DEBBCC2BEBCC1D001A497F /* Frameworks */,
+				55DEBBCD2BEBCC1D001A497F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = VoiceOrderingAssistant;
+			packageProductDependencies = (
+				55B11E182BF4D8650048DB35 /* GoogleGenerativeAI */,
+			);
+			productName = VoiceOrderingAssistant;
+			productReference = 55DEBBCF2BEBCC1D001A497F /* VoiceOrderingAssistant.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		55DEBBC72BEBCC1D001A497F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1530;
+				LastUpgradeCheck = 1530;
+				TargetAttributes = {
+					55DEBBCE2BEBCC1D001A497F = {
+						CreatedOnToolsVersion = 15.3;
+					};
+				};
+			};
+			buildConfigurationList = 55DEBBCA2BEBCC1D001A497F /* Build configuration list for PBXProject "VoiceOrderingAssistant" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 55DEBBC62BEBCC1D001A497F;
+			packageReferences = (
+				55B11E172BF4D8650048DB35 /* XCRemoteSwiftPackageReference "generative-ai-swift" */,
+			);
+			productRefGroup = 55DEBBD02BEBCC1D001A497F /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				55DEBBCE2BEBCC1D001A497F /* VoiceOrderingAssistant */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		55DEBBCD2BEBCC1D001A497F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5507D6202BECE48D00DCBC62 /* LaunchScreen.storyboard in Resources */,
+				55DEBBDF2BEBCC20001A497F /* Assets.xcassets in Resources */,
+				55B11E1C2BF4D9EB0048DB35 /* menu.pdf in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		55DEBBCB2BEBCC1D001A497F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				558E00B02BF2330D002509CE /* Conversation.swift in Sources */,
+				558E00B42BF25597002509CE /* MessageCell.swift in Sources */,
+				55DEBBD72BEBCC1D001A497F /* RootViewController.swift in Sources */,
+				5507D6232BED10B800DCBC62 /* CircularAnimator.swift in Sources */,
+				55C292912BF2099E00D8F7CC /* SideBarViewController.swift in Sources */,
+				55DEBBDD2BEBCC1D001A497F /* VoiceOrderingAssistant.xcdatamodeld in Sources */,
+				55DEBBD32BEBCC1D001A497F /* AppDelegate.swift in Sources */,
+				559CD57D2BF79A8300582E1F /* ControllKeyboard.swift in Sources */,
+				55DEBBEA2BEBD0CD001A497F /* ChatViewController.swift in Sources */,
+				55D69FC02BF504ED00245FB4 /* SpeechManager.swift in Sources */,
+				558E00B22BF2335A002509CE /* Message.swift in Sources */,
+				555D61782BF662F000107551 /* UIColorModified.swift in Sources */,
+				55DEBBD52BEBCC1D001A497F /* SceneDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		55DEBBE42BEBCC20001A497F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		55DEBBE52BEBCC20001A497F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		55DEBBE72BEBCC21001A497F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 43YJ35D2HB;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = VoiceOrderingAssistant/Info.plist;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kad.VoiceOrderingAssistant;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		55DEBBE82BEBCC21001A497F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 43YJ35D2HB;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = VoiceOrderingAssistant/Info.plist;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kad.VoiceOrderingAssistant;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		55DEBBCA2BEBCC1D001A497F /* Build configuration list for PBXProject "VoiceOrderingAssistant" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				55DEBBE42BEBCC20001A497F /* Debug */,
+				55DEBBE52BEBCC20001A497F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		55DEBBE62BEBCC21001A497F /* Build configuration list for PBXNativeTarget "VoiceOrderingAssistant" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				55DEBBE72BEBCC21001A497F /* Debug */,
+				55DEBBE82BEBCC21001A497F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		55B11E172BF4D8650048DB35 /* XCRemoteSwiftPackageReference "generative-ai-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/generative-ai-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.5.3;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		55B11E182BF4D8650048DB35 /* GoogleGenerativeAI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 55B11E172BF4D8650048DB35 /* XCRemoteSwiftPackageReference "generative-ai-swift" */;
+			productName = GoogleGenerativeAI;
+		};
+/* End XCSwiftPackageProductDependency section */
+
+/* Begin XCVersionGroup section */
+		55DEBBDB2BEBCC1D001A497F /* VoiceOrderingAssistant.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				55DEBBDC2BEBCC1D001A497F /* VoiceOrderingAssistant.xcdatamodel */,
+			);
+			currentVersion = 55DEBBDC2BEBCC1D001A497F /* VoiceOrderingAssistant.xcdatamodel */;
+			path = VoiceOrderingAssistant.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
+	};
+	rootObject = 55DEBBC72BEBCC1D001A497F /* Project object */;
+}
