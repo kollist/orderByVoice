@@ -10,6 +10,7 @@
 		5507D6202BECE48D00DCBC62 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5507D61F2BECE48D00DCBC62 /* LaunchScreen.storyboard */; };
 		5507D6232BED10B800DCBC62 /* CircularAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5507D6222BED10B800DCBC62 /* CircularAnimator.swift */; };
 		555D61782BF662F000107551 /* UIColorModified.swift in Sources */ = {isa = PBXBuildFile; fileRef = 555D61772BF662F000107551 /* UIColorModified.swift */; };
+		5567D8942C3C2FE6002468FC /* RenameConversationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5567D8932C3C2FE6002468FC /* RenameConversationViewController.swift */; };
 		558E00B02BF2330D002509CE /* Conversation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 558E00AF2BF2330D002509CE /* Conversation.swift */; };
 		558E00B22BF2335A002509CE /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 558E00B12BF2335A002509CE /* Message.swift */; };
 		558E00B42BF25597002509CE /* MessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 558E00B32BF25597002509CE /* MessageCell.swift */; };
@@ -24,12 +25,14 @@
 		55DEBBDD2BEBCC1D001A497F /* VoiceOrderingAssistant.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 55DEBBDB2BEBCC1D001A497F /* VoiceOrderingAssistant.xcdatamodeld */; };
 		55DEBBDF2BEBCC20001A497F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 55DEBBDE2BEBCC20001A497F /* Assets.xcassets */; };
 		55DEBBEA2BEBD0CD001A497F /* ChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55DEBBE92BEBD0CC001A497F /* ChatViewController.swift */; };
+		55EF58822BFE52A000961E34 /* CircularLoadingIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55EF58812BFE52A000961E34 /* CircularLoadingIndicatorView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		5507D61F2BECE48D00DCBC62 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		5507D6222BED10B800DCBC62 /* CircularAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CircularAnimator.swift; path = VoiceOrderingAssistant/CircularAnimator.swift; sourceTree = SOURCE_ROOT; };
 		555D61772BF662F000107551 /* UIColorModified.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIColorModified.swift; sourceTree = SOURCE_ROOT; };
+		5567D8932C3C2FE6002468FC /* RenameConversationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RenameConversationViewController.swift; sourceTree = "<group>"; };
 		558E00AF2BF2330D002509CE /* Conversation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Conversation.swift; sourceTree = SOURCE_ROOT; };
 		558E00B12BF2335A002509CE /* Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = SOURCE_ROOT; };
 		558E00B32BF25597002509CE /* MessageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageCell.swift; sourceTree = SOURCE_ROOT; };
@@ -45,6 +48,7 @@
 		55DEBBDE2BEBCC20001A497F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		55DEBBE32BEBCC20001A497F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		55DEBBE92BEBD0CC001A497F /* ChatViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewController.swift; sourceTree = "<group>"; };
+		55EF58812BFE52A000961E34 /* CircularLoadingIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularLoadingIndicatorView.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -134,6 +138,7 @@
 				55DEBBD62BEBCC1D001A497F /* RootViewController.swift */,
 				55DEBBE92BEBD0CC001A497F /* ChatViewController.swift */,
 				55C292902BF2099E00D8F7CC /* SideBarViewController.swift */,
+				5567D8932C3C2FE6002468FC /* RenameConversationViewController.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -143,6 +148,7 @@
 			children = (
 				5507D61F2BECE48D00DCBC62 /* LaunchScreen.storyboard */,
 				558E00B32BF25597002509CE /* MessageCell.swift */,
+				55EF58812BFE52A000961E34 /* CircularLoadingIndicatorView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -234,6 +240,7 @@
 			files = (
 				558E00B02BF2330D002509CE /* Conversation.swift in Sources */,
 				558E00B42BF25597002509CE /* MessageCell.swift in Sources */,
+				5567D8942C3C2FE6002468FC /* RenameConversationViewController.swift in Sources */,
 				55DEBBD72BEBCC1D001A497F /* RootViewController.swift in Sources */,
 				5507D6232BED10B800DCBC62 /* CircularAnimator.swift in Sources */,
 				55C292912BF2099E00D8F7CC /* SideBarViewController.swift in Sources */,
@@ -245,6 +252,7 @@
 				558E00B22BF2335A002509CE /* Message.swift in Sources */,
 				555D61782BF662F000107551 /* UIColorModified.swift in Sources */,
 				55DEBBD52BEBCC1D001A497F /* SceneDelegate.swift in Sources */,
+				55EF58822BFE52A000961E34 /* CircularLoadingIndicatorView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

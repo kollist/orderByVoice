@@ -95,10 +95,12 @@ class MessageCell: UITableViewCell, AVSpeechSynthesizerDelegate {
             }
         }
         
-    }
-    
+    } 
+     
     func setupUI() {
         contentView.backgroundColor = .clear
+        self.backgroundColor = .clear
+        contentView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(userContent)
         contentView.addSubview(spacingView)
         userContent.addSubview(messagerLogo)
@@ -181,6 +183,7 @@ class MessageCell: UITableViewCell, AVSpeechSynthesizerDelegate {
         mutableAttributedString.addAttribute(.foregroundColor, value: UIColor.white, range: characterRange)
         messageContent.attributedText = mutableAttributedString
     }
+    
     func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
         messageContent.attributedText = NSAttributedString(string: utterance.speechString)
         if let readTextButton = userContent.subviews.first(where: { $0 is UIButton }) as? UIButton {

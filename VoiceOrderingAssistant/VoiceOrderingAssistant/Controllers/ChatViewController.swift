@@ -10,11 +10,17 @@ import PDFKit
 import AVFoundation
 import GoogleGenerativeAI
 
-class ChatViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, AVSpeechSynthesizerDelegate, AVAudioRecorderDelegate, UITextViewDelegate {
+class ChatViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, AVSpeechSynthesizerDelegate, AVAudioRecorderDelegate, UITextViewDelegate, UIGestureRecognizerDelegate, UITextFieldDelegate {
     private var synthesizer: AVSpeechSynthesizer?
     private var audioRecorder: AVAudioRecorder?
-    var audioLengthMax: CGFloat = 1.0
-    let conversation = Conversation(messages: [], conversationName: "Conver One", conversationID: 1)
+    private var audioLengthMax: CGFloat = 1.0
+    private var speechManager = SpeechManager()
+    private var timer: Timer?
+    private var isShowen = false
+    var recordingDuration: TimeInterval = 0.0
+    let maxRecordingDuration: TimeInterval = 120.0 // 2 minutes
+
+    var conversation = Conversation(messages: [], conversationName: "Default name", conversationID: 1)
     override func viewDidLoad() {
         AVCaptureDevice.requestAccess(for: .audio) { granted in
             if granted {
@@ -25,7 +31,7 @@ class ChatViewController: UIViewController, UITableViewDelegate, UITableViewData
             } else {
                 // Permission denied, handle accordingly
                 DispatchQueue.main.async {
-                    // Show an alert or update UI to indicate microphone access is denied
+                    self.showMicrophoneAccessAlert()
                 }
             }
         }
@@ -35,8 +41,20 @@ class ChatViewController: UIViewController, UITableViewDelegate, UITableViewData
         messagesTable.register(MessageCell.self, forCellReuseIdentifier: MessageCell.identifier)
         messagesTable.reloadData()
         setupUI()
-//        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
-//        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+    
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        self.view.layoutIfNeeded()
+    }
+    
+    func showMicrophoneAccessAlert() {
+        let alert = UIAlertController(title: "Microphone Access Denied", message: "Please enable microphone access in settings.", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
     }
     
     func setupAudioSession() {
@@ -59,18 +77,15 @@ class ChatViewController: UIViewController, UITableViewDelegate, UITableViewData
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return conversation.getMessages().count
     }
-    
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return UITableView.automaticDimension
     }
-    
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         return UIView()
     }
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return 20
     }
-    
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
         return UIView()
     }
@@ -98,9 +113,11 @@ class ChatViewController: UIViewController, UITableViewDelegate, UITableViewData
         return UITableViewCell()
     }
     
+    
     lazy var navBar: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
+        view.tag = 21
         view.backgroundColor = UIColor(named: "MainColor")?.withAlphaComponent(0.26)
         return view
     }()
@@ -117,6 +134,7 @@ class ChatViewController: UIViewController, UITableViewDelegate, UITableViewData
         imageView.image = UIImage(named: "BotLogo")
         return imageView
     }()
+    
     lazy var name: UILabel = {
        let lbl = UILabel()
         lbl.text = conversation.getConversationName()
@@ -148,14 +166,420 @@ class ChatViewController: UIViewController, UITableViewDelegate, UITableViewData
         btn.isUserInteractionEnabled = true
         btn.setBackgroundImage(UIImage(named: "actionsMenu"), for: .normal)
         btn.titleLabel?.textColor = .black
+        btn.addTarget(self, action: #selector(conversationAction), for: .touchUpInside)
         return btn
     }()
+    
+    lazy var renameConversationButton: UIButton = {
+        let btn = UIButton(type: .system)
+        btn.translatesAutoresizingMaskIntoConstraints = false
+        btn.isUserInteractionEnabled = true
+        btn.addTarget(self, action: #selector(renameConversationButtonTapped), for:.touchUpInside)
+
+        return btn
+    }()
+    lazy var deleteConversationButton: UIButton = {
+        let btn = UIButton()
+        btn.translatesAutoresizingMaskIntoConstraints = false
+        btn.isUserInteractionEnabled = true
+        btn.addTarget(self, action: #selector(deleteConversationButtonTapped), for: .touchUpInside)
+        return btn
+    }()
+    
+    lazy var renamingTextFieldLabel: UILabel = {
+        let lbl = UILabel()
+        lbl.translatesAutoresizingMaskIntoConstraints = false
+        lbl.backgroundColor = .white
+        lbl.layer.zPosition = 99999
+        lbl.text = "New Name"
+        lbl.font = .systemFont(ofSize: 10)
+        lbl.textAlignment = .center
+        return lbl
+    }()
+    
+    lazy var renamingSquare: UIView = {
+        
+        let view = UIView()
+        view.isUserInteractionEnabled = true
+        view.addSubview(renamingInputView)
+        view.addSubview(cancelRenamingButton)
+        view.addSubview(confirmRenamingButton)
+        view.addSubview(renamingTextFieldLabel)
+        NSLayoutConstraint.activate([
+            
+            renamingInputView.topAnchor.constraint(equalTo: view.topAnchor, constant: 37),
+            renamingInputView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            renamingInputView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.7),
+            renamingInputView.heightAnchor.constraint(equalToConstant: 40),
+            
+            cancelRenamingButton.widthAnchor.constraint(equalToConstant: 90),
+            cancelRenamingButton.heightAnchor.constraint(equalToConstant: 30),
+            cancelRenamingButton.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: -50),
+            cancelRenamingButton.topAnchor.constraint(equalTo: renamingInputView.bottomAnchor, constant: 17),
+            
+            confirmRenamingButton.widthAnchor.constraint(equalToConstant: 90),
+            confirmRenamingButton.heightAnchor.constraint(equalToConstant: 30),
+            confirmRenamingButton.leadingAnchor.constraint(equalTo: cancelRenamingButton.trailingAnchor, constant: 15),
+            confirmRenamingButton.topAnchor.constraint(equalTo: renamingInputView.bottomAnchor, constant: 17),
+            
+            renamingTextFieldLabel.topAnchor.constraint(equalTo: renamingInputView.topAnchor, constant: -7),
+            renamingTextFieldLabel.leadingAnchor.constraint(equalTo: renamingInputView.leadingAnchor, constant: 10),
+            renamingTextFieldLabel.widthAnchor.constraint(equalToConstant: 60)
+            
+            
+        ])
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .white
+        view.layer.cornerRadius = 20
+        return view
+    }()
+    
+    lazy var cancelRenamingButton: UIButton = {
+        let cancelBtn = UIButton()
+        cancelBtn.setTitle("Cancel", for: .normal)
+        cancelBtn.setTitleColor(UIColor(named: "MainColor"), for: .normal)
+        cancelBtn.translatesAutoresizingMaskIntoConstraints = false
+        cancelBtn.isUserInteractionEnabled = true
+        cancelBtn.layer.borderWidth = 1
+        cancelBtn.layer.borderColor = UIColor(named: "MainColor")?.cgColor
+        cancelBtn.layer.cornerRadius = 15
+        cancelBtn.addTarget(self, action: #selector(cancelRenaming), for: .touchUpInside)
+        return cancelBtn
+    }()
+    
+    lazy var cancelDeletingButton: UIButton = {
+        let cancelBtn = UIButton()
+        cancelBtn.setTitle("Cancel", for: .normal)
+        cancelBtn.setTitleColor(UIColor(named: "MainColor"), for: .normal)
+        cancelBtn.translatesAutoresizingMaskIntoConstraints = false
+        cancelBtn.isUserInteractionEnabled = true
+        cancelBtn.layer.borderWidth = 1
+        cancelBtn.layer.borderColor = UIColor(named: "MainColor")?.cgColor
+        cancelBtn.layer.cornerRadius = 15
+        cancelBtn.addTarget(self, action: #selector(cancelDeleting), for: .touchUpInside)
+        return cancelBtn
+    }()
+    
+    @objc func cancelRenaming(_ sender: UIButton) {
+        renamingView.removeFromSuperview()
+        
+    }
+    @objc func cancelDeleting(_ sender: UIButton) {
+        deletingCoversationView.removeFromSuperview()
+    }
+    @objc func confirmRenaming( _ sender: UIButton) {
+        if (renamingInputTextField.text != "") {
+            if let newName = renamingInputTextField.text {
+                self.conversation.setConversationName(newName)
+                self.name.text = newName
+                renamingView.removeFromSuperview()
+                return
+            }
+            
+        }
+        renamingInputView.layer.borderColor = UIColor.red.cgColor
+        renamingTextFieldLabel.textColor = .red
+        
+    }
+    
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        if (textField == renamingInputTextField) {
+            if (textField.text != "") {
+                renamingInputView.layer.borderColor = UIColor(named: "MainColor")?.cgColor
+                renamingTextFieldLabel.textColor = .black
+            }
+        }
+        
+        return true
+    }
+    
+    lazy var confirmRenamingButton: UIButton = {
+        let renameBtn = UIButton()
+        renameBtn.setTitle("Rename", for: .normal)
+        renameBtn.setTitleColor(.white, for: .normal)
+        renameBtn.backgroundColor = UIColor(named: "MainColor")
+        renameBtn.translatesAutoresizingMaskIntoConstraints = false
+        renameBtn.isUserInteractionEnabled = true
+        renameBtn.layer.borderColor = UIColor(named: "MainColor")?.cgColor
+        renameBtn.layer.cornerRadius = 15
+        renameBtn.addTarget(self, action: #selector(confirmRenaming), for: .touchUpInside)
+        return renameBtn
+    }()
+    
+    lazy var renamingInputView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.layer.borderWidth = 1
+        view.layer.borderColor = UIColor(named: "MainColor")?.cgColor
+        view.addSubview(renamingInputTextField)
+        NSLayoutConstraint.activate([
+            renamingInputTextField.topAnchor.constraint(equalTo: view.topAnchor, constant: 10),
+            renamingInputTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            renamingInputTextField.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -10),
+            renamingInputTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+        ])
+        return view
+    }()
+    
+    lazy var renamingInputTextField: UITextField = {
+        let input = UITextField()
+        input.delegate = self
+        input.translatesAutoresizingMaskIntoConstraints = false
+        input.placeholder = "Write the new name..."
+        input.font = .systemFont(ofSize: 16)
+        input.text = conversation.getConversationName()
+        return input
+    }()
+    
+    lazy var renamingView: UIView = {
+        let view = UIView()
+        let renamingViewTap = UITapGestureRecognizer(target: self, action: #selector(handleRenamingViewTap(_:)))
+        renamingViewTap.delegate = self
+        view.addGestureRecognizer(renamingViewTap)
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = UIColor(hexString: "#0000000", alpha: 0.5)
+        view.addSubview(renamingSquare)
+        NSLayoutConstraint.activate([
+            renamingSquare.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            renamingSquare.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            renamingSquare.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.8),
+            renamingSquare.heightAnchor.constraint(equalToConstant: 135),
+        ])
+        return view
+    }()
+    
+    lazy var deletingCoversationView: UIView = {
+        let view = UIView()
+        let deletingViewTap = UITapGestureRecognizer(target: self, action: #selector(handleRenamingViewTap(_:)))
+        deletingViewTap.delegate = self
+        view.addGestureRecognizer(deletingViewTap)
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = UIColor(hexString: "#0000000", alpha: 0.5)
+        view.addSubview(deletingSquare)
+        NSLayoutConstraint.activate([
+            deletingSquare.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            deletingSquare.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            deletingSquare.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.8),
+            deletingSquare.heightAnchor.constraint(equalToConstant: 135),
+        ])
+        return view
+    }()
+    
+    lazy var confirmDeletingButton: UIButton = {
+        let renameBtn = UIButton()
+        renameBtn.setTitle("Delete", for: .normal)
+        renameBtn.setTitleColor(.white, for: .normal)
+        renameBtn.backgroundColor = UIColor(named: "MainColor")
+        renameBtn.translatesAutoresizingMaskIntoConstraints = false
+        renameBtn.isUserInteractionEnabled = true
+        renameBtn.layer.borderColor = UIColor(named: "MainColor")?.cgColor
+        renameBtn.layer.cornerRadius = 15
+        renameBtn.addTarget(self, action: #selector(confirmDeletingConversation), for: .touchUpInside)
+        return renameBtn
+    }()
+    
+    @objc func confirmDeletingConversation( _ sender: UIButton ) {
+        self.conversation = Conversation(messages: [], conversationName: "Default name", conversationID: 1)
+        name.text = conversation.getConversationName()
+        messagesTable.reloadData()
+        deletingCoversationView.removeFromSuperview()
+        
+    }
+    
+    lazy var deletingSquare: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .white
+        view.layer.cornerRadius = 20
+        view.addSubview(deletingMessageLabel)
+        view.addSubview(cancelDeletingButton)
+        view.addSubview(confirmDeletingButton)
+        
+        NSLayoutConstraint.activate([
+            deletingMessageLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 30),
+            deletingMessageLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            deletingMessageLabel.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.9),
+            
+            cancelDeletingButton.topAnchor.constraint(equalTo: deletingMessageLabel.bottomAnchor, constant: 15),
+            cancelDeletingButton.widthAnchor.constraint(equalToConstant: 90),
+            cancelDeletingButton.heightAnchor.constraint(equalToConstant: 30),
+            cancelDeletingButton.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: -50),
+            
+            confirmDeletingButton.widthAnchor.constraint(equalToConstant: 90),
+            confirmDeletingButton.heightAnchor.constraint(equalToConstant: 30),
+            confirmDeletingButton.leadingAnchor.constraint(equalTo: cancelDeletingButton.trailingAnchor, constant: 15),
+            confirmDeletingButton.topAnchor.constraint(equalTo: deletingMessageLabel.bottomAnchor, constant: 17),
+        ])
+        return view
+    }()
+    
+    lazy var deletingMessageLabel: UILabel = {
+        let lbl = UILabel()
+        lbl.translatesAutoresizingMaskIntoConstraints = false
+        lbl.text = "Are you sure you want to delete this chat? Once it's deleted, the conversation cannot be recovered."
+        lbl.font = .systemFont(ofSize: 13)
+        lbl.textAlignment = .center
+        lbl.numberOfLines = 0
+        return lbl
+    }()
+    
+    
+    @objc func handleRenamingViewTap(_ sender: UITapGestureRecognizer) {
+        renamingView.removeFromSuperview()
+        deletingCoversationView.removeFromSuperview()
+    }
+
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        if touch.view == renamingSquare || touch.view == renamingInputView || touch.view == deletingSquare {
+            return false
+        }
+        return true
+    }
+
+    
+    @objc func renameConversationButtonTapped(_ sender: UIButton) {
+        
+        if let parent = conversationActionsMenu.superview {
+            isShowen = false
+            conversationActionsMenu.removeFromSuperview()
+            parent.addSubview(renamingView)
+            NSLayoutConstraint.activate([
+                renamingView.leadingAnchor.constraint(equalTo: parent.leadingAnchor),
+                renamingView.trailingAnchor.constraint(equalTo: parent.trailingAnchor),
+                renamingView.topAnchor.constraint(equalTo: parent.topAnchor),
+                renamingView.bottomAnchor.constraint(equalTo: parent.bottomAnchor)
+            ])
+        }
+    }
+    
+    
+    
+    @objc func deleteConversationButtonTapped(_ sender: UIButton) {
+        if let parent = conversationActionsMenu.superview {
+            isShowen = false
+            conversationActionsMenu.removeFromSuperview()
+            parent.addSubview(deletingCoversationView)
+            NSLayoutConstraint.activate([
+                deletingCoversationView.leadingAnchor.constraint(equalTo: parent.leadingAnchor),
+                deletingCoversationView.trailingAnchor.constraint(equalTo: parent.trailingAnchor),
+                deletingCoversationView.topAnchor.constraint(equalTo: parent.topAnchor),
+                deletingCoversationView.bottomAnchor.constraint(equalTo: parent.bottomAnchor)
+            ])
+            
+        }
+    }
+    
+    lazy var conversationActionsMenu: UIView = {
+        let menu = UIView()
+        menu.translatesAutoresizingMaskIntoConstraints = false
+        menu.isUserInteractionEnabled = true
+        menu.backgroundColor = .systemBackground
+        menu.layer.shadowColor = UIColor(hexString: "5A5A5A").cgColor
+        menu.layer.shadowOpacity = 1
+        menu.layer.shadowOffset = .zero
+        menu.layer.shadowRadius = 10
+        menu.layer.cornerRadius = 20
+     
+        let itemOneLbl = UILabel()
+        itemOneLbl.text = "Rename"
+        itemOneLbl.tintColor = UIColor(hexString: "5A5A5A")
+        itemOneLbl.font = .boldSystemFont(ofSize: 16)
+        itemOneLbl.textAlignment = .center
+        itemOneLbl.translatesAutoresizingMaskIntoConstraints = false
+        
+        let itemTwoLbl = UILabel()
+        itemTwoLbl.text = "Delete"
+        itemTwoLbl.tintColor = UIColor(hexString: "5A5A5A")
+        itemTwoLbl.font = .boldSystemFont(ofSize: 16)
+        itemTwoLbl.textAlignment = .center
+        itemTwoLbl.translatesAutoresizingMaskIntoConstraints = false
+        
+       let itemOneLogo = UIImageView()
+        itemOneLogo.tintColor = UIColor(hexString: "5A5A5A")
+        itemOneLogo.translatesAutoresizingMaskIntoConstraints = false
+        itemOneLogo.image = UIImage(systemName: "pencil")
+        
+        let itemTwoLogo = UIImageView()
+        itemTwoLogo.tintColor = UIColor(hexString: "5A5A5A")
+        itemTwoLogo.translatesAutoresizingMaskIntoConstraints = false
+         itemTwoLogo.image = UIImage(systemName: "trash")
+        
+        let devider = UIView()
+        devider.backgroundColor = UIColor(hexString: "C0C0C0")
+        devider.translatesAutoresizingMaskIntoConstraints = false
+        
+        renameConversationButton.addSubview(itemOneLbl)
+        renameConversationButton.addSubview(itemOneLogo)
+        deleteConversationButton.addSubview(itemTwoLbl)
+        deleteConversationButton.addSubview(itemTwoLogo)
+        
+        menu.addSubview(renameConversationButton)
+        menu.addSubview(devider)
+        menu.addSubview(deleteConversationButton)
+        
+        NSLayoutConstraint.activate([
+            
+            renameConversationButton.heightAnchor.constraint(equalToConstant: 24),
+            renameConversationButton.widthAnchor.constraint(equalToConstant: 100),
+            renameConversationButton.centerXAnchor.constraint(equalTo: menu.centerXAnchor),
+            renameConversationButton.topAnchor.constraint(equalTo: menu.topAnchor, constant: 13),
+            
+            devider.heightAnchor.constraint(equalToConstant: 2),
+            devider.widthAnchor.constraint(equalToConstant: 100),
+            devider.centerYAnchor.constraint(equalTo: menu.centerYAnchor),
+            devider.centerXAnchor.constraint(equalTo: menu.centerXAnchor),
+            
+            deleteConversationButton.heightAnchor.constraint(equalToConstant: 24),
+            deleteConversationButton.widthAnchor.constraint(equalToConstant: 100),
+            deleteConversationButton.centerXAnchor.constraint(equalTo: menu.centerXAnchor),
+            deleteConversationButton.bottomAnchor.constraint(equalTo: menu.bottomAnchor, constant: -13),
+            
+            itemOneLbl.centerYAnchor.constraint(equalTo: renameConversationButton.centerYAnchor),
+            itemOneLbl.leadingAnchor.constraint(equalTo: itemOneLogo.trailingAnchor),
+            itemOneLbl.widthAnchor.constraint(equalToConstant: 76),
+            itemOneLbl.heightAnchor.constraint(equalToConstant: 24),
+
+            itemOneLogo.leadingAnchor.constraint(equalTo: renameConversationButton.leadingAnchor),
+            itemOneLogo.heightAnchor.constraint(equalToConstant: 24),
+            itemOneLogo.widthAnchor.constraint(equalToConstant: 24),
+
+            itemTwoLbl.centerYAnchor.constraint(equalTo: deleteConversationButton.centerYAnchor),
+            itemTwoLbl.leadingAnchor.constraint(equalTo: itemTwoLogo.trailingAnchor),
+            itemTwoLbl.widthAnchor.constraint(equalToConstant: 76),
+            itemTwoLbl.heightAnchor.constraint(equalToConstant: 24),
+
+            itemTwoLogo.leadingAnchor.constraint(equalTo: deleteConversationButton.leadingAnchor),
+            itemTwoLogo.heightAnchor.constraint(equalToConstant: 24),
+            itemTwoLogo.widthAnchor.constraint(equalToConstant: 24)
+        
+        ])
+        return menu
+    }()
+
+    @objc func conversationAction( _ sender: UIButton) {
+        
+        if isShowen {
+            conversationActionsMenu.removeFromSuperview()
+            isShowen = false
+            return
+        }
+        if let parentView = sender.superview?.superview {
+            parentView.addSubview(conversationActionsMenu)
+            NSLayoutConstraint.activate([
+                conversationActionsMenu.topAnchor.constraint(equalTo: sender.bottomAnchor, constant: 20),
+                conversationActionsMenu.trailingAnchor.constraint(equalTo: parentView.trailingAnchor, constant: -10),
+                conversationActionsMenu.heightAnchor.constraint(equalToConstant: 106),
+                conversationActionsMenu.widthAnchor.constraint(equalToConstant: 165)
+            ])
+            self.viewDidLayoutSubviews()
+            isShowen = true
+        }
+    }
     
     lazy var messagesTable: UITableView = {
         let table = UITableView()
         table.translatesAutoresizingMaskIntoConstraints = false
         table.separatorStyle = .none
-        
         return table
     }()
     
@@ -170,9 +594,7 @@ class ChatViewController: UIViewController, UITableViewDelegate, UITableViewData
         let uiview = UIView()
         uiview.translatesAutoresizingMaskIntoConstraints = false
         uiview.layer.cornerRadius = 30
-        
         uiview.backgroundColor = #colorLiteral(red: 0.8901960784, green: 0.8901960784, blue: 0.8901960784, alpha: 1)
-        
         return uiview
     }()
     
@@ -189,7 +611,6 @@ class ChatViewController: UIViewController, UITableViewDelegate, UITableViewData
         return field
     }()
     
-    
     func textViewShouldReturn(_ textView: UITextView) -> Bool {
         textView.resignFirstResponder()
         return true
@@ -201,16 +622,22 @@ class ChatViewController: UIViewController, UITableViewDelegate, UITableViewData
         btn.layer.cornerRadius = 18
         btn.backgroundColor = #colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9098039216, alpha: 1)
         btn.isUserInteractionEnabled = true
+        btn.isEnabled = false
         btn.addTarget(self, action: #selector(sendMessage), for: .touchUpInside)
         return btn
     }()
     
-    
-    
+    lazy var sendButtonIcon: UIImageView = {
+        let img = UIImageView()
+        img.translatesAutoresizingMaskIntoConstraints = false
+        img.image = UIImage(named: "sendIcon")
+        return img
+    }()
+
     @objc func sendMessage(_ sender: UIButton) {
         guard let msg = textingInput.text, !msg.isEmpty else { return }
         // UI feedback and disabling button
-        sender.backgroundColor = UIColor(named: "MainColor")?.withAlphaComponent(0.26)
+        
         sender.isEnabled = false
         recordButton.isEnabled = false
         
@@ -224,13 +651,14 @@ class ChatViewController: UIViewController, UITableViewDelegate, UITableViewData
         textingInput.text = "Hello"
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
             sender.backgroundColor = #colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9098039216, alpha: 1)
+            let imgView = self.getButtonImage(sender)
+            imgView?.image = UIImage(named: "sendIcon")
             // other UI reset operations
         }
         messagesTable.reloadData()
         view.endEditing(true)
     }
 
-    
     func sendRequestToGenerativeLanguageAPI(text: String) {
         let config = GenerationConfig(
             temperature: 1,
@@ -262,11 +690,11 @@ class ChatViewController: UIViewController, UITableViewDelegate, UITableViewData
                 sendButton.isEnabled = true
                 recordButton.isEnabled = true
             } catch {
-                print(error)
+                print("Something went wrong")
+                print(error.localizedDescription)
             }
         }
     }
-
     
     func getModelContents() -> [ModelContent] {
         var context = [
@@ -310,10 +738,170 @@ class ChatViewController: UIViewController, UITableViewDelegate, UITableViewData
     }()
     
     @objc func recordAudioClicked(_ sender: UIButton) {
-        self.view.layoutIfNeeded()
+        print("Record button clicked")
+
+        if let recorder = audioRecorder {
+            if recorder.isRecording {
+                print("Stopping the recording")
+                addAgainComponents()
+                let imageViewChange = getButtonImage(recordButton)
+                imageViewChange?.image = UIImage(named: "MicIcon")
+                recordButton.backgroundColor = UIColor(hexString: "#E8E8E8")
+                recorder.stop()
+                audioRecorder = nil
+                recordingView.removeFromSuperview()
+                return
+            } else {
+                print("Recorder exists but is not recording")
+            }
+        } else {
+            print("Recorder does not exist, starting new recording")
+        }
+
+        // Start new recording
+        print("Starting new recording")
         recordAudio()
         updateView(sender)
-        self.view.layoutIfNeeded()
+        stopRecordingButton.isHidden = false
+        viewContainer.isHidden = false
+        loadingIndicator.isHidden = true
+        transcriptionMessageLabel.isHidden = true
+        noSpeechDetectedView.isHidden = true
+        
+    }
+
+    private func recordAudio() {
+        let audioURL = getDocumentsDirectory().appendingPathComponent("audio.wav")
+        print("Audio file URL: \(audioURL)")
+
+        let settings: [String: Any] = [
+            AVFormatIDKey: Int(kAudioFormatLinearPCM),
+            AVSampleRateKey: 12000,
+            AVNumberOfChannelsKey: 1,
+            AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
+        ]
+
+        do {
+            audioRecorder = try AVAudioRecorder(url: audioURL, settings: settings)
+            audioRecorder?.delegate = self
+            audioRecorder?.isMeteringEnabled = true
+            audioRecorder?.record()
+            recordingDuration = 0.0
+            timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(updateRecordingDuration), userInfo: nil, repeats: true)
+        } catch {
+            print("Error recording audio: \(error.localizedDescription)")
+        }
+    }
+    
+    @objc func updateRecordingDuration() {
+        if let recorder = audioRecorder {
+            recordingDuration = recorder.currentTime
+            let minutes = Int(recordingDuration) / 60
+            let seconds = Int(recordingDuration) % 60
+            audioLength.text = String(format: "%02d:%02d", minutes, seconds)
+
+//            if recordingDuration >= maxRecordingDuration {
+//                finishRecording(success: true)
+//            }
+        }
+    }
+
+    @objc func stopRecording(_ sender: UIButton) {
+        print("Stop recording button pressed")
+
+        // Stop the audio recorder if it exists
+        if let recorder = audioRecorder {
+            recorder.stop()
+            print("Recording stopped")
+        } else {
+            print("Audio recorder is nil")
+        }
+
+        // Remove the button from its superview
+        audioRecorder = nil
+        loadingIndicator.startAnimating()
+        sender.isHidden = true
+        viewContainer.isHidden = true
+        loadingIndicator.isHidden = false
+        transcriptionMessageLabel.isHidden = false
+        
+        // Audio to text
+        let audioFileURL = getDocumentsDirectory().appendingPathComponent("audio.wav")
+        recognizeText(from: audioFileURL) { (recognizedText, error) in
+            if let recognizedText = recognizedText {
+//                self.sendRequestToGenerativeLanguageAPI(text: recognizedText)
+                self.textingInput.text = recognizedText
+            } else if let error = error {
+                self.addNoTextDetected(error.localizedDescription)
+                self.loadingIndicator.isHidden = true
+                self.transcriptionMessageLabel.isHidden = true
+                self.noSpeechDetectedView.isHidden = false
+
+            }
+        }
+        
+    }
+    
+    lazy var noSpeechDetectedLabel: UILabel = {
+        let lbl = UILabel()
+        lbl.numberOfLines = 0
+        lbl.translatesAutoresizingMaskIntoConstraints = false
+        lbl.textAlignment = .center
+        return lbl
+    }()
+    
+    lazy var reRecordAudioButton: UIButton = {
+        let rerecordBtn = UIButton()
+        rerecordBtn.translatesAutoresizingMaskIntoConstraints = false
+        rerecordBtn.setTitle("Start new recording", for: .normal)
+        rerecordBtn.setTitleColor(.white, for: .normal)
+        rerecordBtn.backgroundColor = UIColor(hexString: "#882E86")
+        rerecordBtn.layer.cornerRadius = 25
+        rerecordBtn.addTarget(self, action: #selector(recordAudioClicked), for: .touchUpInside)
+        return rerecordBtn
+    }()
+    
+    lazy var noSpeechDetectedView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    func addNoTextDetected(_ errorMsg: String) {
+        
+        
+        
+        noSpeechDetectedLabel.text = errorMsg
+        
+        noSpeechDetectedView.addSubview(noSpeechDetectedLabel)
+        noSpeechDetectedView.addSubview(reRecordAudioButton)
+        recordingView.addSubview(noSpeechDetectedView)
+        
+        NSLayoutConstraint.activate([
+            
+            noSpeechDetectedView.centerXAnchor.constraint(equalTo: recordingView.centerXAnchor),
+            noSpeechDetectedView.centerYAnchor.constraint(equalTo: recordingView.centerYAnchor),
+            noSpeechDetectedView.widthAnchor.constraint(equalToConstant: 220),
+            noSpeechDetectedView.heightAnchor.constraint(equalToConstant: 70),
+            
+            noSpeechDetectedLabel.trailingAnchor.constraint(equalTo: noSpeechDetectedView.trailingAnchor),
+            noSpeechDetectedLabel.leadingAnchor.constraint(equalTo: noSpeechDetectedView.leadingAnchor),
+            noSpeechDetectedLabel.topAnchor.constraint(equalTo: noSpeechDetectedView.topAnchor),
+            
+            
+            reRecordAudioButton.trailingAnchor.constraint(equalTo: noSpeechDetectedView.trailingAnchor),
+            reRecordAudioButton.leadingAnchor.constraint(equalTo: noSpeechDetectedView.leadingAnchor),
+            reRecordAudioButton.topAnchor.constraint(equalTo: noSpeechDetectedLabel.bottomAnchor, constant: 16),
+            reRecordAudioButton.heightAnchor.constraint(equalToConstant: 50),
+        ])
+        
+    }
+    
+    // MARK: - Recognize Text
+    private func recognizeText(from audioFileURL: URL, completion: @escaping (String?, Error?) -> Void) {
+        speechManager.transcribeAudioFile(at: audioFileURL) { (recognizedText, error) in
+            completion(recognizedText, error)
+        }
     }
     
     private func updateView(_ sender: UIButton) {
@@ -322,15 +910,14 @@ class ChatViewController: UIViewController, UITableViewDelegate, UITableViewData
         let img = superView?.image?.withRenderingMode(.alwaysTemplate)
         superView?.image = img
         superView?.tintColor = UIColor(named: "MainColor")
-        self.view.addSubview(recordingView)
-        print(conversation.getMessages())
         self.textingInputView.removeFromSuperview()
         self.messagesTable.removeFromSuperview()
         self.view.addSubview(textingInputView)
         self.view.addSubview(messagesTable)
+        self.view.addSubview(recordingView)
         
         NSLayoutConstraint.activate([
-             
+            
             recordingView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor),
             recordingView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
             recordingView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
@@ -346,81 +933,150 @@ class ChatViewController: UIViewController, UITableViewDelegate, UITableViewData
             messagesTable.widthAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.9),
             messagesTable.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
             
-            
         ])
     }
+    
+    lazy var stopRecordingButton: UIButton = {
+        let  btn = UIButton()
+        btn.isUserInteractionEnabled = true
+        btn.translatesAutoresizingMaskIntoConstraints = false
+        btn.addTarget(self, action: #selector(stopRecording), for: .touchUpInside)
+        return btn
+    }()
+    
+
+    
+    func textViewDidChange(_ textView: UITextView) {
+            // Handle text changes
+            if textView.text.isEmpty {
+                let imageViewChange = getButtonImage(sendButton)
+                imageViewChange?.image = UIImage(named: "sendIcon")
+                sendButton.isEnabled = false
+                sendButton.backgroundColor = #colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9098039216, alpha: 1)
+                
+            } else {
+                sendButton.backgroundColor = UIColor(named: "MainColor")?.withAlphaComponent(0.26)
+                let superView = getButtonImage(sendButton)
+                let img = superView?.image?.withRenderingMode(.alwaysTemplate)
+                superView?.image = img
+                sendButton.isEnabled = true 
+                superView?.tintColor = UIColor(named: "MainColor")
+            }
+        }
+    
+    lazy var loadingIndicator: CircularLoadingIndicatorView = {
+        let loader = CircularLoadingIndicatorView()
+        loader.translatesAutoresizingMaskIntoConstraints = false
+        loader.isHidden = true
+        return loader
+    }()
+    
+    lazy var transcriptionMessageLabel: UILabel = {
+        let lbl = UILabel()
+        lbl.translatesAutoresizingMaskIntoConstraints = false
+        lbl.text = "Convert to text..."
+        lbl.isHidden = true
+        return lbl
+    }()
+    
     
     lazy var recordingView: UIView = {
         let view = UIView()
         view.isUserInteractionEnabled = true
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = UIColor(hexString: "#D9D9D9")
-        let circle = UIView()
-        circle.layer.cornerRadius = 36
-        circle.translatesAutoresizingMaskIntoConstraints = false
-        circle.backgroundColor = UIColor(named: "MainColor")?.withAlphaComponent(0.26)
-        circle.tag = 21
-        let  btn = UIButton()
-        btn.isUserInteractionEnabled = true
-        btn.translatesAutoresizingMaskIntoConstraints = false
-        btn.titleLabel?.text = "hello"
-        btn.tintColor = .blue
-        btn.addTarget(self, action: #selector(stopRecording), for: .touchUpInside)
-        let lbl = UILabel()
-        lbl.translatesAutoresizingMaskIntoConstraints = false
-        lbl.text = "      Tap to stop recording"
-        lbl.textColor = UIColor(hexString: "#333333")
         
-        let img = UIImage(systemName: "playpause")
-        let viewImage = UIImageView(image: img)
+        
          
+        // X Button to remove the recording view
         let removeViewBtn = UIButton()
         removeViewBtn.isUserInteractionEnabled = true
         removeViewBtn.translatesAutoresizingMaskIntoConstraints = false
         removeViewBtn.tintColor = .gray
         removeViewBtn.setBackgroundImage(UIImage(systemName: "xmark"), for: .normal)
         removeViewBtn.addTarget(self, action: #selector(removeRecordingViewClicked), for: .touchUpInside)
-        
-        viewImage.translatesAutoresizingMaskIntoConstraints = false
-        viewImage.tintColor = .black
-        viewImage.layer.cornerRadius = 14.5
-        lbl.addSubview(viewImage)
-//        btn.addSubview(lbl)
-//        btn.addSubview(viewImage)
-//        btn.addSubview(circle)
-        view.addSubview(btn)
-        
+
+        view.addSubview(stopRecordingButton)
+        view.addSubview(viewContainer)
         view.addSubview(audioLength)
         view.addSubview(removeViewBtn)
+        view.addSubview(loadingIndicator)
+        view.addSubview(transcriptionMessageLabel)
         
         NSLayoutConstraint.activate([
+            
+            transcriptionMessageLabel.leadingAnchor.constraint(equalTo: loadingIndicator.trailingAnchor, constant: 20),
+            transcriptionMessageLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            
+            
+            loadingIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: -50),
+            loadingIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            loadingIndicator.heightAnchor.constraint(equalToConstant: 37),
+            loadingIndicator.widthAnchor.constraint(equalToConstant: 37),
+            
+            viewContainer.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            viewContainer.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             
             removeViewBtn.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             removeViewBtn.topAnchor.constraint(equalTo: view.topAnchor, constant: 10),
             
-//            viewImage.topAnchor.constraint(equalTo: lbl.topAnchor),
-//            viewImage.leadingAnchor.constraint(equalTo: lbl.leadingAnchor),
-//            viewImage.heightAnchor.constraint(equalToConstant: 20),
-//            viewImage.widthAnchor.constraint(equalToConstant: 20),
-            
-//            lbl.centerYAnchor.constraint(equalTo: btn.centerYAnchor, constant: -3),
-//            lbl.centerXAnchor.constraint(equalTo: btn.centerXAnchor),
-            
-//            circle.heightAnchor.constraint(equalToConstant: 72),
-//            circle.widthAnchor.constraint(equalToConstant: 72),
-//            circle.centerXAnchor.constraint(equalTo: btn.centerXAnchor),
-//            circle.centerYAnchor.constraint(equalTo: btn.centerYAnchor),
-            
-            btn.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            btn.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            btn.heightAnchor.constraint(equalToConstant: 72),
-            btn.widthAnchor.constraint(equalToConstant: 72),
+            stopRecordingButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            stopRecordingButton.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            stopRecordingButton.heightAnchor.constraint(equalToConstant: 72),
+            stopRecordingButton.widthAnchor.constraint(equalToConstant: 72),
 
             
             audioLength.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             audioLength.topAnchor.constraint(equalTo: view.topAnchor, constant: 10),
             
         ])
+        return view
+    }()
+    
+    lazy var viewContainer: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        
+        // Circle Behind The Button
+        let circle = UIView()
+        circle.layer.cornerRadius = 36
+        circle.translatesAutoresizingMaskIntoConstraints = false
+        circle.backgroundColor = UIColor(named: "MainColor")?.withAlphaComponent(0.26)
+        circle.tag = 21
+        
+        // Label While Recording
+        let lbl = UILabel()
+        lbl.translatesAutoresizingMaskIntoConstraints = false
+        lbl.text = "      Tap to stop recording"
+        lbl.textColor = UIColor(hexString: "#333333")
+        
+        // Image In The label while recording
+        let img = UIImage(systemName: "playpause")
+        let viewImage = UIImageView(image: img)
+        viewImage.translatesAutoresizingMaskIntoConstraints = false
+        viewImage.tintColor = .black
+        viewImage.layer.cornerRadius = 14.5
+        
+        lbl.addSubview(viewImage)
+        
+        view.addSubview(lbl)
+        view.addSubview(circle)
+        
+        NSLayoutConstraint.activate([
+            viewImage.topAnchor.constraint(equalTo: lbl.topAnchor),
+            viewImage.leadingAnchor.constraint(equalTo: lbl.leadingAnchor),
+            viewImage.heightAnchor.constraint(equalToConstant: 20),
+            viewImage.widthAnchor.constraint(equalToConstant: 20),
+            
+            lbl.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -3),
+            lbl.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            
+            circle.heightAnchor.constraint(equalToConstant: 72),
+            circle.widthAnchor.constraint(equalToConstant: 72),
+            circle.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            circle.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+        ])
+        
         return view
     }()
     
@@ -432,7 +1088,6 @@ class ChatViewController: UIViewController, UITableViewDelegate, UITableViewData
         imageViewChange?.image = UIImage(named: "MicIcon")
         recordButton.backgroundColor = UIColor(hexString: "#E8E8E8")
         audioRecorder?.stop()
-        self.view.layoutIfNeeded()
     }
     
     func addAgainComponents() {
@@ -452,57 +1107,7 @@ class ChatViewController: UIViewController, UITableViewDelegate, UITableViewData
             messagesTable.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
         ])
     }
-    
-    
-    // MARK: - Record Audio function
-    private func recordAudio() {
-        let audioURL = getDocumentsDirectory().appendingPathComponent("audio.wav")
-        let settings: [String: Any] = [
-            AVFormatIDKey: Int(kAudioFormatLinearPCM),
-            AVSampleRateKey: 12000,
-            AVNumberOfChannelsKey: 1,
-            AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
-        ]
-        do {
-            audioRecorder = try AVAudioRecorder(url: audioURL, settings: settings)
-            audioRecorder?.delegate = self
-            audioRecorder?.isMeteringEnabled = true
-            audioRecorder?.record()
-        } catch {
-            print("Error recording audio: \(error.localizedDescription)")
-        }
-    }
 
-    @objc func stopRecording(_ sender: UIButton) {
-        print("stop")
-        audioRecorder?.stop()
-        
-    }
-    
-    func removeRecordingView(_ btn: UIButton) {
-        
-    }
-
-    
-    lazy var convertingView: UIView = {
-        let numberOfCircles = 8
-        let circleSize: CGFloat = 50
-        let circleSpacing: CGFloat = 20
-        let containerView = UIView(frame: view.bounds)
-        containerView.backgroundColor = .white
-        view.addSubview(containerView)
-        for index in 0..<numberOfCircles {
-            let circle = UIView(frame: CGRect(x: 0, y: 0, width: circleSize, height: circleSize))
-            circle.layer.cornerRadius = circleSize / 2
-            circle.backgroundColor = UIColor(hue: CGFloat(index) / CGFloat(numberOfCircles), saturation: 1, brightness: 1, alpha: 1)
-            let x = containerView.bounds.midX + (containerView.bounds.width / 2 - circleSize / 2 - circleSpacing) * cos(2 * Double.pi * Double(index) / Double(numberOfCircles))
-            let y = containerView.bounds.midY + (containerView.bounds.height / 2 - circleSize / 2 - circleSpacing) * sin(2 * Double.pi * Double(index) / Double(numberOfCircles))
-            circle.center = CGPoint(x: x, y: y)
-            containerView.addSubview(circle)
-        }
-        return containerView
-    }()
-    
     lazy var audioLength: UILabel = {
         let lbl = UILabel()
         lbl.translatesAutoresizingMaskIntoConstraints = false
@@ -517,12 +1122,7 @@ class ChatViewController: UIViewController, UITableViewDelegate, UITableViewData
         return img
     }()
     
-    lazy var sendButtonIcon: UIImageView = {
-        let img = UIImageView()
-        img.translatesAutoresizingMaskIntoConstraints = false
-        img.image = UIImage(named: "sendIcon")
-        return img
-    }()
+    
     
     func setupUI() {
         self.view.backgroundColor = .systemBackground

@@ -8,37 +8,54 @@
 import UIKit
 
 
-var originalTableViewContentInset: UIEdgeInsets = .zero
-var originalTextViewContentInset: UIEdgeInsets = .zero
+var textViewBottomConstraint: NSLayoutConstraint?
 
 func keyboardWillShowGlobal(_ notification: Notification, _ tableView: UITableView, _ textView: UITextView) {
     guard let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else {
         return
     }
     
-    // Store the original content insets
-    originalTableViewContentInset = tableView.contentInset
-    originalTextViewContentInset = textView.contentInset
+    let contentInsets = UIEdgeInsets(top: 0, left: 0, bottom: keyboardSize.height, right: 0)
     
-    // Calculate the new content insets
-    let tableViewContentInsets = UIEdgeInsets(top: 0.0, left: 0.0, bottom: keyboardSize.height, right: 0.0)
-    let textViewContentInsets = UIEdgeInsets(top: 0.0, left: 0.0, bottom: keyboardSize.height, right: 0.0)
+    guard let superview = tableView.superview else {
+        return
+    }
     
-    // Animate the content inset changes
-    UIView.animate(withDuration: 0.3) {
-        tableView.contentInset = tableViewContentInsets
-        tableView.scrollIndicatorInsets = tableViewContentInsets
-        textView.contentInset = textViewContentInsets
-        textView.scrollIndicatorInsets = textViewContentInsets
+    tableView.contentInset = contentInsets
+    tableView.scrollIndicatorInsets = contentInsets
+    
+    if let inputAccessoryView = textView.inputAccessoryView {
+        if let existingConstraint = textViewBottomConstraint {
+            inputAccessoryView.removeConstraint(existingConstraint)
+        }
+        
+        textViewBottomConstraint = inputAccessoryView.bottomAnchor.constraint(equalTo: superview.bottomAnchor, constant: -keyboardSize.height)
+        textViewBottomConstraint?.isActive = true
+    }
+    
+    if let indexPath = tableView.indexPathForSelectedRow {
+        tableView.scrollToRow(at: indexPath, at: .bottom, animated: true)
     }
 }
 
 func keyboardWillHideGlobal(_ notification: Notification, _ tableView: UITableView, _ textView: UITextView) {
-    // Restore the original content insets
-    UIView.animate(withDuration: 0.3) {
-        tableView.contentInset = originalTableViewContentInset
-        tableView.scrollIndicatorInsets = originalTableViewContentInset
-        textView.contentInset = originalTextViewContentInset
-        textView.scrollIndicatorInsets = originalTextViewContentInset
+    guard let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else {
+        return
+    }
+    
+    guard let superview = tableView.superview else {
+        return
+    }
+    
+    tableView.contentInset = .zero
+    tableView.scrollIndicatorInsets = .zero
+    
+    if let inputAccessoryView = textView.inputAccessoryView {
+        if let existingConstraint = textViewBottomConstraint {
+            inputAccessoryView.removeConstraint(existingConstraint)
+        }
+        
+        textViewBottomConstraint = inputAccessoryView.bottomAnchor.constraint(equalTo: superview.bottomAnchor, constant: -50)
+        textViewBottomConstraint?.isActive = true
     }
 }
